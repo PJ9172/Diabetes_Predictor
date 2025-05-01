@@ -1,31 +1,20 @@
 import pandas as pd
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-import pickle
+import joblib
 
-# load .csv data file
-data = pd.read_csv("diabetes.csv")
+# Load dataset
+df = pd.read_csv("diabetes.csv")
 
-# select features and target
-features = ['Pregnancies', 'Glucose', 'BloodPressure', 'BMI', 'Age']
-target = 'Outcome'
+# Select relevant features
+X = df[["Pregnancies", "Glucose", "BloodPressure", "BMI", "Age"]]
+y = df["Outcome"]
 
-# drop rows with missing values
-data = data[features + [target]].dropna()
+# Train model
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+model = LogisticRegression()
+model.fit(X_train, y_train)
 
-# split data into input (inp) and target (tar)
-inp = data[features]
-tar = data[target]
-
-# split into training and test sets
-inp_train, inp_test, tar_train, tar_test = train_test_split(inp, tar, test_size=0.2, random_state=42)
-
-# train the model
-model = LinearRegression()
-model.fit(inp_train, tar_train)
-
-# save the model
-with open("model.joblib",'wb') as m:
-    pickle.dump(model, m)
-    
-print("Model trained & save to model.joblib")
+# Save model
+joblib.dump(model, "model.joblib")
+print("✅ Model saved as model.joblib")

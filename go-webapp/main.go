@@ -1,11 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"Diabetes_Predictor/routers"
+	"log"
 	"net/http"
 )
 
 func main() {
-	fmt.Println("Server Starts on Port 8000!!!")
-	http.ListenAndServe(":8000",nil)
+	r := routers.SetRouter()
+
+	log.Println("Server Starts at http://localhost:8000/form")
+	log.Fatal(http.ListenAndServe(":8000", r))
 }

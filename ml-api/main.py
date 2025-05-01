@@ -1,28 +1,21 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-import pickle
+import joblib
 import numpy as np
 
-# load the trained model
-with open("model.joblib", "rb") as m:
-    model = pickle.load(m)
-
-# define fastapi app
 app = FastAPI()
+model = joblib.load("model.joblib")
 
-# define input structure 
-class DiabetesFeatures(BaseModel):
+class InputData(BaseModel):
     Pregnancies: int
     Glucose: int
     BloodPressure: int
-    BMI: float #Body mass index (weight in kg/(height in m)^2)
+    BMI: float
     Age: int
-    
-# endpoint
+
 @app.post("/predict")
-def predict_diabetes(data: DiabetesFeatures):
-    features = np.array([[data.Pregnancies, data.Glucose, data.BloodPressure, data.BMI, data.Age]])
-    prediction = model.predict(features)
-    return {
-        "Outcome" : prediction[0]
-    }
+def predict(data: InputData):
+    input_arr = np.array([[data.Pregnancies, data.Glucose, data.BloodPressure, data.BMI, data.Age]])
+    prediction = model.predict(input_arr)[0]
+    result = "High Risk" if prediction == 1 else "Low Risk"
+    return {"result": result}

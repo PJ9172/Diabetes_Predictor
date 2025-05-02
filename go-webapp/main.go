@@ -9,6 +9,6 @@ import (
 func main() {
 	r := routers.SetRouter()
 
-	log.Println("Server Starts at http://localhost:8000/form")
-	log.Fatal(http.ListenAndServe(":8000", r))
+	log.Println("Server Starts at http://localhost:3000/form")
+	log.Fatal(http.ListenAndServe(":3000", r))
 }

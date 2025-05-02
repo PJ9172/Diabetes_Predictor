@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,12 +13,13 @@ import (
 type Input struct {
 	Pregnancies   int     `json:"Pregnancies"`
 	Glucose       int     `json:"Glucose"`
-	BloodPressure int     `json:"Blood_Pressure"`
+	BloodPressure int     `json:"BloodPressure"`
 	BMI           float64 `json:"BMI"`
 	Age           int     `json:"Age"`
 }
 
 type PredictionResponse struct {
+	Color  string `json:"color"`
 	Result string `json:"result"`
 }
 
@@ -46,7 +48,6 @@ func Prediction(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to parse form", http.StatusBadRequest)
 		return
 	}
-	log.Println("pregnancies: ",r.FormValue("pregnancies"))
 
 	// store form values in struct
 	input := Input{
@@ -62,6 +63,7 @@ func Prediction(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error creating JSON", http.StatusInternalServerError)
 		return
 	}
+
 	// send json data to fast api
 	resp, err := http.Post("http://localhost:8000/predict", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
@@ -71,11 +73,13 @@ func Prediction(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 
 	var result PredictionResponse
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		log.Println("Error decoding response:", err)
-		http.Error(w, "Error decoding prediction", http.StatusInternalServerError)
-		return
+	body, _ := io.ReadAll(resp.Body)
+	json.Unmarshal(body, &result)
+
+	if result.Result == "😟⚠️ High Risk" {
+		result.Color = "text-danger"
+	} else {
+		result.Color = "text-success"
 	}
 
 	tmpl := template.Must(template.ParseFiles("templates/result.html"))

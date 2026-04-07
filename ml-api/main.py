@@ -1,10 +1,13 @@
+import os
 from fastapi import FastAPI
 from pydantic import BaseModel
 import joblib
 import numpy as np
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 app = FastAPI()
-model = joblib.load("model.joblib")
+model = joblib.load(os.path.join(BASE_DIR, "model.joblib"))
 
 class InputData(BaseModel):
     Pregnancies: int

@@ -65,7 +65,7 @@ func Prediction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send json data to fast api
-	resp, err := http.Post("http://localhost:8000/predict", "application/json", bytes.NewBuffer(jsonData))
+	resp, err := http.Post("https://diabetes-predictor-z6sf.onrender.com/predict", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		http.Error(w, "Error to call fast api!!!", http.StatusInternalServerError)
 		return
